@@ -83,7 +83,7 @@ int main(void)
 	    GPIOB->BRR = 1 << 0;
 	    GPIOB->BSRR = 1 << 1;
 
-	    i = 1000000;
+	    i = 100000;
 	    while(--i);
   }
 }
