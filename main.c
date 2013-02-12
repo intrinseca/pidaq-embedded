@@ -50,6 +50,7 @@ GPIO_InitTypeDef GPIO_InitStructure;
 int main(void)
 {
 	int i;
+	int j;
   /*!< At this stage the microcontroller clock setting is already configured, 
        this is done through SystemInit() function which is called from startup
        file (startup_stm32f10x_xx.s) before to branch to application main.
@@ -71,20 +72,27 @@ int main(void)
      If you need to fine tune this frequency, you can add more GPIO set/reset 
      cycles to minimize more the infinite loop timing.
      This code needs to be compiled with high speed optimization option.  */
+
+  j = 1 << 23;
+
   while (1)
   {
 	    GPIOB->BSRR = 1 << 0;
 	    GPIOB->BRR = 1 << 1;
 
-	    i = 1000000;
+	    i = j;
 	    while(--i);
 
 	    /* Reset PC12 */
 	    GPIOB->BRR = 1 << 0;
 	    GPIOB->BSRR = 1 << 1;
 
-	    i = 100000;
+	    i = j;
 	    while(--i);
+	    j = j >> 1;
+
+	    if(j == 1)
+	    	j = 1 << 23;
   }
 }
 
