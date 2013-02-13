@@ -23,38 +23,39 @@ int main(void) {
 	init_gpio();
 	init_usart();
 	init_spi();
+	init_timer();
 
 	//Enable USART
 	USART_Cmd(USART1, ENABLE);
+
 
 	j = 1 << START_SPEED;
 	send_spi("\n\nPiDAQ r1\n", 11);
 	send_usart("\n\nPiDAQ r1\n");
 
+	TIM_Cmd(TIM2, ENABLE);
+
 	while (1) {
-		GPIOB ->BSRR = 1 << 0;
-		GPIOB ->BRR = 1 << 1;
-		send_usart("A");
-		send_spi("ABC", 3);
 
-		i = j;
-		while (--i)
-			;
-
-		// Reset PC12
-		GPIOB ->BRR = 1 << 0;
-		GPIOB ->BSRR = 1 << 1;
-		send_usart("B\n");
-		send_spi("DEF", 3);
-
-		i = j;
-		while (--i)
-			;
-		//j = j >> 1;
-
-		if (j == 1)
-			j = 1 << START_SPEED;
 	}
+}
+
+void TIM2_IRQHandler(void) {
+	static uint8_t state = 0;
+
+	if (state == 0) {
+		GPIOB ->BSRR = 1 << 1;
+		//send_usart("A");
+		send_spi("On", 2);
+		state = 1;
+	} else {
+		GPIOB ->BRR = 1 << 1;
+		//send_usart("B\n");
+		send_spi("Off", 3);
+		state = 0;
+	}
+
+	TIM_ClearITPendingBit(TIM2, TIM_IT_Update);
 }
 
 #ifdef  USE_FULL_ASSERT

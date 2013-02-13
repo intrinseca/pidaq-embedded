@@ -49,3 +49,24 @@ void init_usart() {
 
 	USART_Init(USART1, &usart_params);
 }
+
+void init_timer() {
+	TIM_TimeBaseInitTypeDef tim_params;
+	NVIC_InitTypeDef nvic_params;
+
+	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2, ENABLE);
+
+	TIM_TimeBaseStructInit(&tim_params);
+	tim_params.TIM_Prescaler = SystemCoreClock / 10000;
+	tim_params.TIM_Period = 1000;
+	TIM_TimeBaseInit(TIM2, &tim_params);
+
+	nvic_params.NVIC_IRQChannel = TIM2_IRQn;
+	nvic_params.NVIC_IRQChannelPreemptionPriority = 0;
+	nvic_params.NVIC_IRQChannelSubPriority = 1;
+	nvic_params.NVIC_IRQChannelCmd = ENABLE;
+	NVIC_Init(&nvic_params);
+
+	TIM_ClearITPendingBit(TIM2, TIM_IT_Update);
+	TIM_ITConfig(TIM2, TIM_IT_Update, ENABLE);
+}

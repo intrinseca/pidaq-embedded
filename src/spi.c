@@ -9,6 +9,7 @@ void spi_send_frame(uint8_t data);
 uint8_t tx_buffer[SPI_BUFFER_SIZE] = { 0, };
 uint8_t tx_offset = 0;
 uint8_t tx_length = 0;
+uint8_t tx_done = 1;
 
 void init_spi() {
 	SPI_InitTypeDef spi_params;
@@ -26,6 +27,9 @@ void init_spi() {
 }
 
 void send_spi(char* string, uint8_t length) {
+
+	while(!tx_done);
+
 	tx_offset = 0;
 	tx_length = length + 1;
 
@@ -38,6 +42,7 @@ void send_spi(char* string, uint8_t length) {
 	}
 
 	tx_offset = 0;
+	tx_done = 0;
 	SPI_I2S_SendData(SPI2, tx_buffer[tx_offset++]);
 	SPI_I2S_ITConfig(SPI2, SPI_I2S_IT_TXE, ENABLE);
 }
@@ -46,6 +51,7 @@ void SPI2_IRQHandler(void) {
 	if (tx_offset >= tx_length) {
 		SPI_I2S_ITConfig(SPI2, SPI_I2S_IT_TXE, DISABLE);
 		SPI_I2S_SendData(SPI2, 0);
+		tx_done = 1;
 	}
 	else {
 		SPI_I2S_SendData(SPI2, tx_buffer[tx_offset++]);
