@@ -2,17 +2,31 @@
 #include "stm32f10x.h"
 #include "stm32f10x_usart.h"
 #include "stm32f10x_gpio.h"
+#include "stm32f10x_spi.h"
 #include "stm32f10x_rcc.h"
+
+#define START_SPEED 10
 
 GPIO_InitTypeDef GPIO_InitStructure;
 USART_InitTypeDef USART_InitStructure;
+SPI_InitTypeDef SPI_InitStructure;
 
-void send_string(char* string) {
+void send_usart(char* string) {
 	do {
 		USART_SendData(USART1, *string);
 		while (USART_GetFlagStatus(USART1, USART_FLAG_TXE ) == RESET)
 			;
 	} while (*string++);
+}
+
+void send_spi(char* string) {
+	while (*string) {
+		SPI_I2S_SendData(SPI2, *string);
+		while (SPI_I2S_GetFlagStatus(SPI2, SPI_I2S_FLAG_TXE ) == RESET)
+			;
+
+		string++;
+	}
 }
 
 int main(void) {
@@ -26,6 +40,7 @@ int main(void) {
 	 */
 
 	/* GPIOD Periph clock enable */
+	RCC_APB1PeriphClockCmd(RCC_APB1Periph_SPI2, ENABLE);
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA, ENABLE);
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB, ENABLE);
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1, ENABLE);
@@ -46,6 +61,13 @@ int main(void) {
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
 	GPIO_Init(GPIOA, &GPIO_InitStructure);
 
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_13 | GPIO_Pin_15;
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
+	GPIO_Init(GPIOB, &GPIO_InitStructure);
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_14;
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
+	GPIO_Init(GPIOB, &GPIO_InitStructure);
+
 	USART_InitStructure.USART_BaudRate = 115200;
 	USART_InitStructure.USART_HardwareFlowControl =
 			USART_HardwareFlowControl_None;
@@ -55,6 +77,10 @@ int main(void) {
 	USART_InitStructure.USART_WordLength = USART_WordLength_8b;
 	USART_Init(USART1, &USART_InitStructure);
 
+	SPI_StructInit(&SPI_InitStructure);
+	SPI_Init(SPI2, &SPI_InitStructure);
+
+	SPI_Cmd(SPI2, ENABLE);
 	USART_Cmd(USART1, ENABLE);
 
 	/* To achieve GPIO toggling maximum frequency, the following  sequence is mandatory.
@@ -63,23 +89,26 @@ int main(void) {
 	 cycles to minimize more the infinite loop timing.
 	 This code needs to be compiled with high speed optimization option.  */
 
-	j = 1 << 21;
-
-	send_string("\n\nPiDAQ r1\n");
+	j = 1 << START_SPEED;
+	//send_spi("\n\nPiDAQ r1\n");
+	send_spi("012345012345");
+	send_usart("\n\nPiDAQ r1\n");
 
 	while (1) {
 		GPIOB ->BSRR = 1 << 0;
 		GPIOB ->BRR = 1 << 1;
-		send_string("A");
+		send_usart("A");
+		send_spi("678901678901");
 
 		i = j;
 		while (--i)
 			;
 
-		/* Reset PC12 */
+		// Reset PC12
 		GPIOB ->BRR = 1 << 0;
 		GPIOB ->BSRR = 1 << 1;
-		send_string("B\n");
+		send_usart("B\n");
+		send_spi("234567234567");
 
 		i = j;
 		while (--i)
@@ -87,7 +116,7 @@ int main(void) {
 		j = j >> 1;
 
 		if (j == 1)
-			j = 1 << 21;
+			j = 1 << START_SPEED;
 	}
 }
 
