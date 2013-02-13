@@ -148,9 +148,3 @@ void assert_failed(uint8_t* file, uint32_t line)
 }
 
 #endif
-
-void _exit(void) {
-	while (1) {
-		// Loop until reset
-	}
-}
