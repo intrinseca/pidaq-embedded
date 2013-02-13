@@ -97,8 +97,7 @@ int main(void) {
 	 This code needs to be compiled with high speed optimization option.  */
 
 	j = 1 << START_SPEED;
-	//send_spi("\n\nPiDAQ r1\n");
-	send_spi("012345012345", 12);
+	send_spi("\n\nPiDAQ r1\n", 11);
 	send_usart("\n\nPiDAQ r1\n");
 
 	while (1) {
