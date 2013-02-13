@@ -1,13 +1,14 @@
 #include "stm32f10x_conf.h"
 #include "stm32f10x.h"
 #include "spi.h"
+#include "pool.h"
 
 #define SPI_BUFFER_SIZE 32
 
 uint8_t tx_buffer[SPI_BUFFER_SIZE] = { 0, };
 uint8_t tx_offset = 0;
 uint8_t tx_length = 0;
-uint8_t tx_done = 1;
+volatile uint8_t tx_done = 1;
 
 void init_spi() {
 	SPI_InitTypeDef spi_params;
@@ -45,6 +46,10 @@ uint8_t send_spi(char* string, uint8_t length) {
 	SPI_I2S_ITConfig(SPI2, SPI_I2S_IT_TXE, ENABLE);
 
 	return 1;
+}
+
+uint8_t spi_busy(void) {
+	return !tx_done;
 }
 
 void SPI2_IRQHandler(void) {

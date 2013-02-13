@@ -3,6 +3,8 @@
 
 #include "init.h"
 #include "spi.h"
+#include "pool.h"
+#include "samples.h"
 
 void send_usart(char* string) {
 	do {
@@ -13,6 +15,12 @@ void send_usart(char* string) {
 }
 
 int main(void) {
+	char * buf = 0;
+
+	//Initialise Sample Buffers
+	pool_init();
+	adc_init();
+
 	//Initialise Peripherals
 	init_rcc();
 	init_gpio();
@@ -26,10 +34,20 @@ int main(void) {
 	send_spi("\n\nPiDAQ r1\n", 11);
 	send_usart("\n\nPiDAQ r1\n");
 
-	TIM_Cmd(TIM2, ENABLE);
+	//TIM_Cmd(TIM2, ENABLE);
+	TIM_Cmd(TIM3, ENABLE);
 
 	while (1) {
+		if (!spi_busy()) {
+			if (buf)
+				adc_free_buff(buf);
 
+			buf = adc_get_filled_buff();
+
+			if (buf) {
+				send_spi(buf, POOL_BUFF_SIZE);
+			}
+		}
 	}
 }
 
@@ -48,7 +66,7 @@ void TIM2_IRQHandler(void) {
 		state = 0;
 	}
 
-	TIM_ClearITPendingBit(TIM2, TIM_IT_Update);
+	TIM_ClearITPendingBit(TIM2, TIM_IT_Update );
 }
 
 #ifdef  USE_FULL_ASSERT

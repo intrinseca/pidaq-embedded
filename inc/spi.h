@@ -10,6 +10,7 @@
 
 void init_spi();
 uint8_t send_spi(char* string, uint8_t length);
+uint8_t spi_busy(void);
 void SPI2_IRQHandler(void);
 
 #endif /* SPI_H_ */
