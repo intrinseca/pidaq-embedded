@@ -26,9 +26,9 @@ void init_spi() {
 	SPI_Cmd(SPI2, ENABLE);
 }
 
-void send_spi(char* string, uint8_t length) {
-
-	while(!tx_done);
+uint8_t send_spi(char* string, uint8_t length) {
+	if(!tx_done)
+		return 0;
 
 	tx_offset = 0;
 	tx_length = length + 1;
@@ -45,6 +45,8 @@ void send_spi(char* string, uint8_t length) {
 	tx_done = 0;
 	SPI_I2S_SendData(SPI2, tx_buffer[tx_offset++]);
 	SPI_I2S_ITConfig(SPI2, SPI_I2S_IT_TXE, ENABLE);
+
+	return 1;
 }
 
 void SPI2_IRQHandler(void) {
