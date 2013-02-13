@@ -5,7 +5,7 @@
 #include "stm32f10x_spi.h"
 #include "stm32f10x_rcc.h"
 
-#define START_SPEED 10
+#define START_SPEED 21
 
 GPIO_InitTypeDef GPIO_InitStructure;
 USART_InitTypeDef USART_InitStructure;
@@ -19,14 +19,21 @@ void send_usart(char* string) {
 	} while (*string++);
 }
 
-void send_spi(char* string) {
-	while (*string) {
-		SPI_I2S_SendData(SPI2, *string);
-		while (SPI_I2S_GetFlagStatus(SPI2, SPI_I2S_FLAG_TXE ) == RESET)
-			;
+void spi_send_frame(uint16_t data) {
+	SPI_I2S_SendData(SPI2, data);
+	while (SPI_I2S_GetFlagStatus(SPI2, SPI_I2S_FLAG_TXE ) == RESET)
+		;
+}
 
+void send_spi(char* string, uint16_t length) {
+	spi_send_frame(length);
+	while (length > 0) {
+		spi_send_frame(*string);
 		string++;
+		length--;
 	}
+
+	SPI_I2S_SendData(SPI2, 0);
 }
 
 int main(void) {
@@ -91,14 +98,14 @@ int main(void) {
 
 	j = 1 << START_SPEED;
 	//send_spi("\n\nPiDAQ r1\n");
-	send_spi("012345012345");
+	send_spi("012345012345", 12);
 	send_usart("\n\nPiDAQ r1\n");
 
 	while (1) {
 		GPIOB ->BSRR = 1 << 0;
 		GPIOB ->BRR = 1 << 1;
 		send_usart("A");
-		send_spi("678901678901");
+		send_spi("678901678901", 12);
 
 		i = j;
 		while (--i)
@@ -108,12 +115,12 @@ int main(void) {
 		GPIOB ->BRR = 1 << 0;
 		GPIOB ->BSRR = 1 << 1;
 		send_usart("B\n");
-		send_spi("234567234567");
+		send_spi("234567234567", 12);
 
 		i = j;
 		while (--i)
 			;
-		j = j >> 1;
+		//j = j >> 1;
 
 		if (j == 1)
 			j = 1 << START_SPEED;
