@@ -1,5 +1,6 @@
 #include "stm32f10x_conf.h"
 #include "stm32f10x.h"
+#include "init.h"
 
 void init_rcc() {
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_SPI2, ENABLE);
@@ -47,12 +48,4 @@ void init_usart() {
 	usart_params.USART_BaudRate = 115200;
 
 	USART_Init(USART1, &usart_params);
-}
-
-void init_spi() {
-	SPI_InitTypeDef spi_params;
-
-	SPI_StructInit(&spi_params);
-
-	SPI_Init(SPI2, &spi_params);
 }

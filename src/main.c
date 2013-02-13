@@ -2,6 +2,7 @@
 #include "stm32f10x.h"
 
 #include "init.h"
+#include "spi.h"
 
 #define START_SPEED 21
 
@@ -11,23 +12,6 @@ void send_usart(char* string) {
 		while (USART_GetFlagStatus(USART1, USART_FLAG_TXE ) == RESET)
 			;
 	} while (*string++);
-}
-
-void spi_send_frame(uint16_t data) {
-	SPI_I2S_SendData(SPI2, data);
-	while (SPI_I2S_GetFlagStatus(SPI2, SPI_I2S_FLAG_TXE ) == RESET)
-		;
-}
-
-void send_spi(char* string, uint16_t length) {
-	spi_send_frame(length);
-	while (length > 0) {
-		spi_send_frame(*string);
-		string++;
-		length--;
-	}
-
-	SPI_I2S_SendData(SPI2, 0);
 }
 
 int main(void) {
@@ -40,8 +24,7 @@ int main(void) {
 	init_usart();
 	init_spi();
 
-	//Enable SPI and USART
-	SPI_Cmd(SPI2, ENABLE);
+	//Enable USART
 	USART_Cmd(USART1, ENABLE);
 
 	j = 1 << START_SPEED;
@@ -52,7 +35,7 @@ int main(void) {
 		GPIOB ->BSRR = 1 << 0;
 		GPIOB ->BRR = 1 << 1;
 		send_usart("A");
-		send_spi("678901678901", 12);
+		send_spi("ABC", 3);
 
 		i = j;
 		while (--i)
@@ -62,7 +45,7 @@ int main(void) {
 		GPIOB ->BRR = 1 << 0;
 		GPIOB ->BSRR = 1 << 1;
 		send_usart("B\n");
-		send_spi("234567234567", 12);
+		send_spi("DEF", 3);
 
 		i = j;
 		while (--i)
