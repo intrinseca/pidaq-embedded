@@ -4,8 +4,6 @@
 #include "init.h"
 #include "spi.h"
 
-#define START_SPEED 21
-
 void send_usart(char* string) {
 	do {
 		USART_SendData(USART1, *string);
@@ -15,9 +13,6 @@ void send_usart(char* string) {
 }
 
 int main(void) {
-	int i;
-	int j;
-
 	//Initialise Peripherals
 	init_rcc();
 	init_gpio();
@@ -28,8 +23,6 @@ int main(void) {
 	//Enable USART
 	USART_Cmd(USART1, ENABLE);
 
-
-	j = 1 << START_SPEED;
 	send_spi("\n\nPiDAQ r1\n", 11);
 	send_usart("\n\nPiDAQ r1\n");
 
@@ -45,12 +38,12 @@ void TIM2_IRQHandler(void) {
 
 	if (state == 0) {
 		GPIOB ->BSRR = 1 << 1;
-		//send_usart("A");
+		send_usart("A");
 		send_spi("On", 2);
 		state = 1;
 	} else {
 		GPIOB ->BRR = 1 << 1;
-		//send_usart("B\n");
+		send_usart("B\n");
 		send_spi("Off", 3);
 		state = 0;
 	}

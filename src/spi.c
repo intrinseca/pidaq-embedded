@@ -2,8 +2,6 @@
 #include "stm32f10x.h"
 #include "spi.h"
 
-void spi_send_frame(uint8_t data);
-
 #define SPI_BUFFER_SIZE 32
 
 uint8_t tx_buffer[SPI_BUFFER_SIZE] = { 0, };
