@@ -78,7 +78,7 @@ void init_timer() {
 	//Period is then 0.1s
 	TIM_TimeBaseStructInit(&tim_params);
 	tim_params.TIM_Prescaler = SystemCoreClock / 10000;
-	tim_params.TIM_Period = 100;
+	tim_params.TIM_Period = 50;
 	TIM_TimeBaseInit(TIM3, &tim_params);
 
 	//Configure the interrupt

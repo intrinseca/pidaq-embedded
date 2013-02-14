@@ -31,7 +31,6 @@ int main(void) {
 	//Enable USART
 	USART_Cmd(USART1, ENABLE);
 
-	send_spi("\n\nPiDAQ r1\n", 11);
 	send_usart("\n\nPiDAQ r1\n");
 
 	//TIM_Cmd(TIM2, ENABLE);
@@ -45,7 +44,14 @@ int main(void) {
 			buf = adc_get_filled_buff();
 
 			if (buf) {
-				send_spi(buf, POOL_BUFF_SIZE);
+				if(send_spi(buf, POOL_BUFF_SIZE))
+				{
+					send_usart("Sending Samples\n");
+				}
+				else
+				{
+					send_usart("SPI Buf Overrun");
+				}
 			}
 		}
 	}

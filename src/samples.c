@@ -17,6 +17,7 @@ void adc_init(void) {
 
 void TIM3_IRQHandler(void) {
 	uint8_t sample;
+	static uint8_t count = 0;
 
 	/* check if current buffer has space */
 	if (next_free_pos < POOL_BUFF_SIZE) {
@@ -47,7 +48,8 @@ void TIM3_IRQHandler(void) {
 	}
 
 	//generate a sample
-	sample = '0' + next_free_pos;
+	sample = count;
+	count++;
 
 	// copy sample into buffer
 	curr_buff[next_free_pos] = sample;
