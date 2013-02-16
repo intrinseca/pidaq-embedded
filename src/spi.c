@@ -10,6 +10,14 @@ uint8_t tx_offset = 0;
 uint8_t tx_length = 0;
 volatile uint8_t tx_done = 1;
 
+void send_usart(char* string) {
+	do {
+		USART_SendData(USART1, *string);
+		while (USART_GetFlagStatus(USART1, USART_FLAG_TXE ) == RESET)
+			;
+	} while (*string++);
+}
+
 void init_spi() {
 	SPI_InitTypeDef spi_params;
 	NVIC_InitTypeDef nvic_params;

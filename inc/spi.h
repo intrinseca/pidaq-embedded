@@ -8,6 +8,8 @@
 #ifndef SPI_H_
 #define SPI_H_
 
+void send_usart(char* string);
+
 void init_spi();
 uint8_t send_spi(char* string, uint8_t length);
 uint8_t spi_busy(void);

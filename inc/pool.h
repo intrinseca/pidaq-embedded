@@ -8,7 +8,7 @@
 #ifndef POOL_H_
 #define POOL_H_
 
-#define POOL_BUFF_SIZE  8
+#define POOL_BUFF_SIZE  10
 
 void * pool_malloc_buff(void);
 void pool_free_buff(void * handle);

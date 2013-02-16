@@ -3,6 +3,7 @@
 
 #include "pool.h"
 #include "samples.h"
+#include "spi.h"
 
 uint8_t get_new_buff(void);
 
@@ -40,9 +41,11 @@ void TIM3_IRQHandler(void) {
 				next_free_pos = 0;
 			} else { // no free buffers available, reuse existing buffer
 				next_free_pos = 0;  // this represents an overrun
+				send_usart("overrun");
 				// FIXME: count overrun
 			}
 		} else { // previous buffer hasn't been claimed, just rewrite
+			send_usart("rewriting");
 			next_free_pos = 0;
 		}
 	}
@@ -55,23 +58,26 @@ void TIM3_IRQHandler(void) {
 	curr_buff[next_free_pos] = sample;
 	next_free_pos++;
 
-	TIM_ClearITPendingBit(TIM3, TIM_IT_Update );
+	TIM_ClearITPendingBit(TIM3, TIM_IT_Update);
 }
 
 void * adc_get_filled_buff(void)
 {
     void * ret;
 
-    //TODO: Disable Interrupts
+	TIM_ITConfig(TIM3, TIM_IT_Update, DISABLE);
 	ret = (void *) filled_buff;
 	filled_buff = 0;
 
+	TIM_ITConfig(TIM3, TIM_IT_Update, ENABLE);
     return ret;
 }
 
 void adc_free_buff(void * buff)
 {
+	TIM_ITConfig(TIM3, TIM_IT_Update, DISABLE);
     pool_free_buff(buff);
+	TIM_ITConfig(TIM3, TIM_IT_Update, ENABLE);
 }
 
 /*

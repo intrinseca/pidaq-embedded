@@ -5,8 +5,11 @@
  *      Author: Michael
  */
 
-#include "pool.h"
+#include "stm32f10x_conf.h"
+#include "stm32f10x_it.h"
 #include <string.h>
+#include "pool.h"
+#include "spi.h"
 
 #define NUM_BUFFERS 8
 
@@ -45,6 +48,8 @@ void * pool_malloc_buff(void) {
 	for (i = 0; i < NUM_BUFFERS; ++i) {
 		if (alloced[i] == BUFF_FREE) {
 			alloced[i] = BUFF_NOT_FREE;
+			send_usart("A");
+			//send_usart(0 + i);
 			return pool[i];
 		}
 	}
@@ -57,10 +62,13 @@ void pool_free_buff(void * handle) {
 
 	for (i = 0; i < NUM_BUFFERS; ++i) {
 		if (pool[i] == handle) {
+			send_usart("F");
+			//send_usart(0 + i);
 			alloced[i] = BUFF_FREE;
 			return;
 		}
 	}
 
+	HardFault_Handler();
 	return; // FIXME: check: we should never get here.
 }

@@ -8,14 +8,6 @@
 #include "pool.h"
 #include "samples.h"
 
-void send_usart(char* string) {
-	do {
-		USART_SendData(USART1, *string);
-		while (USART_GetFlagStatus(USART1, USART_FLAG_TXE ) == RESET)
-			;
-	} while (*string++);
-}
-
 int main(void) {
 	char * buf = 0;
 
@@ -39,15 +31,16 @@ int main(void) {
 
 	//Initialise Sample Buffers
 	pool_init();
+
+	//Enable USART
+	init_usart();
+	USART_Cmd(USART1, ENABLE);
+
 	adc_init();
 
 	//Initialise Peripherals
-	init_usart();
 	init_spi();
 	init_timer();
-
-	//Enable USART
-	USART_Cmd(USART1, ENABLE);
 
 	send_usart("\n\nPiDAQ r1\n");
 
