@@ -1,4 +1,6 @@
 #include "stm32f10x_conf.h"
+#include "stm32f10x_it.h"
+#include "stm32f10x_rcc.h"
 #include "stm32f10x.h"
 
 #include "init.h"
@@ -17,13 +19,29 @@ void send_usart(char* string) {
 int main(void) {
 	char * buf = 0;
 
+	//Configure Interrupt Priority
+	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);
+
+	RCC_ClocksTypeDef RCC_ClocksStatus;
+	RCC_GetClocksFreq(&RCC_ClocksStatus);
+	SystemCoreClock = RCC_ClocksStatus.SYSCLK_Frequency;
+
+	//Core Peripherals
+	init_rcc();
+	init_gpio();
+
+	SysTick_CLKSourceConfig(SysTick_CLKSource_HCLK);
+	//Setup SysTick interrupt at 1ms intervals
+	if(SysTick_Config(SystemCoreClock / 1000))
+	{
+		while(1);
+	}
+
 	//Initialise Sample Buffers
 	pool_init();
 	adc_init();
 
 	//Initialise Peripherals
-	init_rcc();
-	init_gpio();
 	init_usart();
 	init_spi();
 	init_timer();
@@ -61,14 +79,10 @@ void TIM2_IRQHandler(void) {
 	static uint8_t state = 0;
 
 	if (state == 0) {
-		GPIOB ->BSRR = 1 << 1;
-		send_usart("A");
-		send_spi("On", 2);
+		GPIOB -> BSRR = 1 << 1;
 		state = 1;
 	} else {
-		GPIOB ->BRR = 1 << 1;
-		send_usart("B\n");
-		send_spi("Off", 3);
+		GPIOB -> BRR = 1 << 1;
 		state = 0;
 	}
 

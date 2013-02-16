@@ -59,10 +59,17 @@ void NMI_Handler(void)
   */
 void HardFault_Handler(void)
 {
+	int i;
   /* Go to infinite loop when Hard Fault exception occurs */
-  while (1)
-  {
-  }
+	while (1)
+	{
+		GPIOB->BSRR = (1<< 16) | 2;
+		i = 100000;
+		while(i--);
+		GPIOB->BSRR = (1 << 17) | 1;
+		i = 100000;
+		while(i--);
+	}
 }
 
 /**
@@ -136,8 +143,25 @@ void PendSV_Handler(void)
   * @param  None
   * @retval None
   */
+
+#define HBT_ON_TIME 100
+#define HBT_PERIOD 1000
+
 void SysTick_Handler(void)
 {
+	static int counter = 0;
+
+	if(counter == HBT_PERIOD)
+	{
+		GPIOB->BSRR = 1;
+		counter = 0;
+	}
+	else if(counter == HBT_ON_TIME)
+	{
+		GPIOB->BRR = 1;
+	}
+
+	counter++;
 }
 
 /******************************************************************************/

@@ -61,7 +61,7 @@ void init_timer() {
 	//Prescaler sets period to 1ms
 	//Period is then 1s
 	TIM_TimeBaseStructInit(&tim_params);
-	tim_params.TIM_Prescaler = SystemCoreClock / 10000;
+	tim_params.TIM_Prescaler = SystemCoreClock / 1000;
 	tim_params.TIM_Period = 1000;
 	TIM_TimeBaseInit(TIM2, &tim_params);
 
@@ -77,14 +77,14 @@ void init_timer() {
 	//Prescaler sets period to 1ms
 	//Period is then 0.1s
 	TIM_TimeBaseStructInit(&tim_params);
-	tim_params.TIM_Prescaler = SystemCoreClock / 10000;
-	tim_params.TIM_Period = 50;
+	tim_params.TIM_Prescaler = SystemCoreClock / 1000;
+	tim_params.TIM_Period = 100;
 	TIM_TimeBaseInit(TIM3, &tim_params);
 
 	//Configure the interrupt
 	nvic_params.NVIC_IRQChannel = TIM3_IRQn;
-	nvic_params.NVIC_IRQChannelPreemptionPriority = 0;
-	nvic_params.NVIC_IRQChannelSubPriority = 1;
+	nvic_params.NVIC_IRQChannelPreemptionPriority = 3;
+	nvic_params.NVIC_IRQChannelSubPriority = 0;
 	nvic_params.NVIC_IRQChannelCmd = ENABLE;
 	NVIC_Init(&nvic_params);
 

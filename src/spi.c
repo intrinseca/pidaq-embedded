@@ -18,8 +18,8 @@ void init_spi() {
 	SPI_Init(SPI2, &spi_params);
 
 	nvic_params.NVIC_IRQChannel = SPI2_IRQn;
-	nvic_params.NVIC_IRQChannelPreemptionPriority = 0;
-	nvic_params.NVIC_IRQChannelSubPriority = 1;
+	nvic_params.NVIC_IRQChannelPreemptionPriority = 1;
+	nvic_params.NVIC_IRQChannelSubPriority = 2;
 	NVIC_Init(&nvic_params);
 
 	SPI_Cmd(SPI2, ENABLE);
