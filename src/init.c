@@ -83,7 +83,7 @@ void init_timer() {
 
 	//Configure the interrupt
 	nvic_params.NVIC_IRQChannel = TIM3_IRQn;
-	nvic_params.NVIC_IRQChannelPreemptionPriority = 3;
+	nvic_params.NVIC_IRQChannelPreemptionPriority = 0;
 	nvic_params.NVIC_IRQChannelSubPriority = 0;
 	nvic_params.NVIC_IRQChannelCmd = ENABLE;
 	NVIC_Init(&nvic_params);
