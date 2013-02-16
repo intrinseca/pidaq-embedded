@@ -68,20 +68,6 @@ int main(void) {
 	}
 }
 
-void TIM2_IRQHandler(void) {
-	static uint8_t state = 0;
-
-	if (state == 0) {
-		GPIOB -> BSRR = 1 << 1;
-		state = 1;
-	} else {
-		GPIOB -> BRR = 1 << 1;
-		state = 0;
-	}
-
-	TIM_ClearITPendingBit(TIM2, TIM_IT_Update );
-}
-
 #ifdef  USE_FULL_ASSERT
 
 /**
