@@ -48,8 +48,6 @@ void * pool_malloc_buff(void) {
 	for (i = 0; i < NUM_BUFFERS; ++i) {
 		if (alloced[i] == BUFF_FREE) {
 			alloced[i] = BUFF_NOT_FREE;
-			send_usart("A");
-			//send_usart(0 + i);
 			return pool[i];
 		}
 	}
@@ -62,8 +60,6 @@ void pool_free_buff(void * handle) {
 
 	for (i = 0; i < NUM_BUFFERS; ++i) {
 		if (pool[i] == handle) {
-			send_usart("F");
-			//send_usart(0 + i);
 			alloced[i] = BUFF_FREE;
 			return;
 		}

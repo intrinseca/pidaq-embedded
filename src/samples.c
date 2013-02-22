@@ -45,7 +45,7 @@ void TIM3_IRQHandler(void) {
 				// FIXME: count overrun
 			}
 		} else { // previous buffer hasn't been claimed, just rewrite
-			send_usart("rewriting");
+			//send_usart("rewriting");
 			next_free_pos = 0;
 		}
 	}

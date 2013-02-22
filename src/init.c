@@ -58,7 +58,7 @@ void init_timer() {
 	//APB1 runs at half the system clock, but the feed to TIM2 is doubled
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3, ENABLE);
 	//Prescaler sets period to 1ms
-	//Period is then 0.1s
+	//Period is then 10ms
 	TIM_TimeBaseStructInit(&tim_params);
 	tim_params.TIM_Prescaler = SystemCoreClock / 1000;
 	tim_params.TIM_Period = 10;

@@ -10,8 +10,10 @@
 
 void send_usart(char* string);
 
-void init_spi();
-uint8_t send_spi(char* string, uint8_t length);
+extern volatile uint8_t spi_tx_done;
+
+void spi_init();
+uint8_t spi_send_string(const char* string, uint8_t length);
 uint8_t spi_busy(void);
 void SPI2_IRQHandler(void);
 

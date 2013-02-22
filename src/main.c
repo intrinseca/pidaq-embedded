@@ -12,7 +12,7 @@ int main(void) {
 	char * buf = 0;
 
 	//Configure Interrupt Priority
-	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);
+	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2 );
 
 	RCC_ClocksTypeDef RCC_ClocksStatus;
 	RCC_GetClocksFreq(&RCC_ClocksStatus);
@@ -22,11 +22,11 @@ int main(void) {
 	init_rcc();
 	init_gpio();
 
-	SysTick_CLKSourceConfig(SysTick_CLKSource_HCLK);
+	SysTick_CLKSourceConfig(SysTick_CLKSource_HCLK );
 	//Setup SysTick interrupt at 1ms intervals
-	if(SysTick_Config(SystemCoreClock / 1000))
-	{
-		while(1);
+	if (SysTick_Config(SystemCoreClock / 1000)) {
+		while (1)
+			;
 	}
 
 	//Initialise Sample Buffers
@@ -39,7 +39,7 @@ int main(void) {
 	adc_init();
 
 	//Initialise Peripherals
-	init_spi();
+	spi_init();
 	init_timer();
 
 	send_usart("\n\nPiDAQ r1\n");
@@ -48,19 +48,17 @@ int main(void) {
 	TIM_Cmd(TIM3, ENABLE);
 
 	while (1) {
-		if (!spi_busy()) {
+		if (spi_tx_done) {
 			if (buf)
 				adc_free_buff(buf);
 
 			buf = adc_get_filled_buff();
 
 			if (buf) {
-				if(send_spi(buf, POOL_BUFF_SIZE))
-				{
+				if (spi_send_string(buf, POOL_BUFF_SIZE)) {
 					send_usart("Sending Samples\n");
 				}
-				else
-				{
+				else {
 					send_usart("SPI Buf Overrun");
 				}
 			}

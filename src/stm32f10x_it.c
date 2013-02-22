@@ -64,10 +64,10 @@ void HardFault_Handler(void)
 	while (1)
 	{
 		GPIOB->BSRR = (1<< 16) | 2;
-		i = 100000;
+		i = 5000000;
 		while(i--);
 		GPIOB->BSRR = (1 << 17) | 1;
-		i = 100000;
+		i = 2000000;
 		while(i--);
 	}
 }
