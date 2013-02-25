@@ -3,7 +3,7 @@
 #include "spi.h"
 #include "pool.h"
 
-#define SPI_BUFFER_SIZE 32
+#define SPI_BUFFER_SIZE 255
 
 uint8_t tx_buffer[SPI_BUFFER_SIZE] = { 0, };
 uint8_t tx_offset = 0;

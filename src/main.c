@@ -56,7 +56,7 @@ int main(void) {
 
 			if (buf) {
 				if (spi_send_string(buf, POOL_BUFF_SIZE)) {
-					send_usart("Sending Samples\n");
+					//send_usart("Sending Samples\n");
 				}
 				else {
 					send_usart("SPI Buf Overrun");

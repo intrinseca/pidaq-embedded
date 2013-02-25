@@ -57,11 +57,11 @@ void init_timer() {
 	//Set up TIM3 for 'sampling'
 	//APB1 runs at half the system clock, but the feed to TIM2 is doubled
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3, ENABLE);
-	//Prescaler sets period to 1ms
-	//Period is then 10ms
+	//Prescaler sets period to 10us
+	//Period is then 50us
 	TIM_TimeBaseStructInit(&tim_params);
-	tim_params.TIM_Prescaler = SystemCoreClock / 1000;
-	tim_params.TIM_Period = 10;
+	tim_params.TIM_Prescaler = SystemCoreClock / 100000;
+	tim_params.TIM_Period = 5;
 	TIM_TimeBaseInit(TIM3, &tim_params);
 
 	//Configure the interrupt
