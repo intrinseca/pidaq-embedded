@@ -11,15 +11,14 @@
 #include "pool.h"
 #include "spi.h"
 
-#define NUM_BUFFERS 8
-
 enum ALLOCED_STATUS {
 	BUFF_FREE, BUFF_NOT_FREE
 };
 
-unsigned char pool[NUM_BUFFERS][POOL_BUFF_SIZE];
+unsigned char pool[POOL_NUM_BUFFERS][POOL_BUFF_SIZE];
 
-unsigned char alloced[NUM_BUFFERS];
+unsigned char alloced[POOL_NUM_BUFFERS];
+unsigned char alloced_num;
 
 /*
  * Initialise the memory pool. Set all buffers to be 'free' and zero out all
@@ -28,13 +27,15 @@ unsigned char alloced[NUM_BUFFERS];
 void pool_init(void) {
 	unsigned char i, j;
 
-	for (i = 0; i < NUM_BUFFERS; ++i) {
+	for (i = 0; i < POOL_NUM_BUFFERS; ++i) {
 		for(j = 0; j < POOL_BUFF_SIZE; ++j)
 		{
 			pool[i][j] = 0;
 		}
 		alloced[i] = BUFF_FREE;
 	}
+
+	alloced_num = 0;
 }
 
 /*
@@ -45,9 +46,10 @@ void * pool_malloc_buff(void) {
 	unsigned char i;
 
 	/* try and find an unallocated buffer */
-	for (i = 0; i < NUM_BUFFERS; ++i) {
+	for (i = 0; i < POOL_NUM_BUFFERS; ++i) {
 		if (alloced[i] == BUFF_FREE) {
 			alloced[i] = BUFF_NOT_FREE;
+			alloced_num++;
 			return pool[i];
 		}
 	}
@@ -58,9 +60,10 @@ void * pool_malloc_buff(void) {
 void pool_free_buff(void * handle) {
 	unsigned char i;
 
-	for (i = 0; i < NUM_BUFFERS; ++i) {
+	for (i = 0; i < POOL_NUM_BUFFERS; ++i) {
 		if (pool[i] == handle) {
 			alloced[i] = BUFF_FREE;
+			alloced_num--;
 			return;
 		}
 	}

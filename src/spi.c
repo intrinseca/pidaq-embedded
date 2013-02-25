@@ -13,9 +13,10 @@ volatile uint8_t spi_tx_done = 1;
 void send_usart(char* string) {
 	do {
 		USART_SendData(USART1, *string);
+		string++;
 		while (USART_GetFlagStatus(USART1, USART_FLAG_TXE ) == RESET)
 			;
-	} while (*string++);
+	} while (*string);
 }
 
 void spi_init() {
@@ -26,7 +27,7 @@ void spi_init() {
 	SPI_Init(SPI2, &spi_params);
 
 	nvic_params.NVIC_IRQChannel = SPI2_IRQn;
-	nvic_params.NVIC_IRQChannelPreemptionPriority = 1;
+	nvic_params.NVIC_IRQChannelPreemptionPriority = 0;
 	nvic_params.NVIC_IRQChannelSubPriority = 2;
 	NVIC_Init(&nvic_params);
 
@@ -59,12 +60,12 @@ uint8_t spi_send_string(const char* string, uint8_t length) {
 }
 
 void SPI2_IRQHandler(void) {
-	if(spi_tx_done) {
+	if (spi_tx_done) {
 		SPI_I2S_SendData(SPI2, 0x00);
 	}
 	else {
 		SPI_I2S_SendData(SPI2, tx_buffer[tx_offset++]);
-		if(tx_offset >= tx_length)
+		if (tx_offset >= tx_length)
 			spi_tx_done = 1;
 	}
 }

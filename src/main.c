@@ -9,10 +9,11 @@
 #include "samples.h"
 
 int main(void) {
-	char * buf = 0;
+	char * current_buf = 0;
+	char * new_buf = 0;
 
 	//Configure Interrupt Priority
-	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2 );
+	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);
 
 	RCC_ClocksTypeDef RCC_ClocksStatus;
 	RCC_GetClocksFreq(&RCC_ClocksStatus);
@@ -49,17 +50,24 @@ int main(void) {
 
 	while (1) {
 		if (spi_tx_done) {
-			if (buf)
-				adc_free_buff(buf);
+			if(current_buf)
+			{
+				send_usart("d\n");
+				current_buf = 0;
+			}
 
-			buf = adc_get_filled_buff();
+			new_buf = adc_get_filled_buff();
 
-			if (buf) {
-				if (spi_send_string(buf, POOL_BUFF_SIZE)) {
-					//send_usart("Sending Samples\n");
+			if (new_buf) {
+				send_usart("c");
+				current_buf = new_buf;
+
+				if (spi_send_string(current_buf, POOL_BUFF_SIZE)) {
+					adc_free_buff(new_buf);
+					send_usart("f");
 				}
 				else {
-					send_usart("SPI Buf Overrun");
+					send_usart("!");
 				}
 			}
 		}
