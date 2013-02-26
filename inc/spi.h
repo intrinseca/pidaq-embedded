@@ -16,5 +16,6 @@ void spi_init();
 uint8_t spi_send_string(const char* string, uint8_t length);
 uint8_t spi_busy(void);
 void SPI2_IRQHandler(void);
+void DMA1_Channel5_IRQHandler(void);
 
 #endif /* SPI_H_ */
