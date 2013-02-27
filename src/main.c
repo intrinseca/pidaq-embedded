@@ -4,7 +4,7 @@
 #include "init.h"
 #include "spi.h"
 #include "pool.h"
-#include "samples.h"
+#include "adc.h"
 
 int main(void) {
     char * current_buf = 0;

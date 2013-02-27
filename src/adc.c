@@ -2,7 +2,7 @@
 #include "stm32f10x_conf.h"
 
 #include "pool.h"
-#include "samples.h"
+#include "adc.h"
 #include "spi.h"
 
 volatile unsigned char * filled_buffs[POOL_NUM_BUFFERS];
