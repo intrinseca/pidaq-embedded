@@ -30,7 +30,6 @@ void spi_init() {
 
     //Enable peripherals
     RCC_APB1PeriphClockCmd(RCC_APB1Periph_SPI2, ENABLE);
-    RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1, ENABLE);
 
     //Configure SPI
     SPI_StructInit(&spi_params);
@@ -77,8 +76,7 @@ void spi_zero_fill() {
 }
 
 uint8_t spi_send_string(const char* string, uint8_t length) {
-    if (!spi_tx_done)
-    {
+    if (!spi_tx_done) {
         //Error, previous transfer not complete
         return 0;
     }
