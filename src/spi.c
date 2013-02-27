@@ -78,23 +78,15 @@ void spi_zero_fill() {
 
 uint8_t spi_send_string(const char* string, uint8_t length) {
     if (!spi_tx_done)
+    {
         //Error, previous transfer not complete
         return 0;
-
-    //Copy the data to the SPI buffer
-    tx_offset = 0;
-    tx_length = length;
-
-    while (length > 0) {
-        tx_buffer[tx_offset++] = *string;
-        string++;
-        length--;
     }
 
     //Configure the DMA channel
     DMA_Cmd(DMA1_Channel5, DISABLE);
-    dma_params.DMA_MemoryBaseAddr = (uint32_t) tx_buffer;
-    dma_params.DMA_BufferSize = tx_length;
+    dma_params.DMA_MemoryBaseAddr = (uint32_t) string;
+    dma_params.DMA_BufferSize = length;
     dma_params.DMA_MemoryInc = DMA_MemoryInc_Enable;
     dma_params.DMA_Mode = DMA_Mode_Normal;
     DMA_Init(DMA1_Channel5, &dma_params);

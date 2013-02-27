@@ -52,6 +52,7 @@ int main(void) {
 		if (spi_tx_done) {
 			if(current_buf)
 			{
+				adc_free_buff(current_buf);
 				send_usart("d\n");
 				current_buf = 0;
 			}
@@ -63,7 +64,6 @@ int main(void) {
 				current_buf = new_buf;
 
 				if (spi_send_string(current_buf, POOL_BUFF_SIZE)) {
-					adc_free_buff(new_buf);
 					send_usart("f");
 				}
 				else {
