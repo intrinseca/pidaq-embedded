@@ -6,6 +6,7 @@
 #include "spi.h"
 
 uint8_t get_new_buff(void);
+void init_buff(unsigned char * new_buff);
 
 unsigned char * curr_buff;
 volatile unsigned char next_free_pos;
@@ -53,20 +54,20 @@ void TIM3_IRQHandler(void) {
 				if (filled_buff_head >= POOL_NUM_BUFFERS)
 					filled_buff_head = 0;
 
+				init_buff(new_buff);
 				curr_buff = new_buff;
-				next_free_pos = 0;
 				status_message[1] = '0' + alloced_num;
 				send_usart(status_message);
 			}
 			else { // no free buffers available, reuse existing buffer
-				next_free_pos = 0;  // this represents an overrun
+				next_free_pos = 1;  // this represents an overrun
 				send_usart("P");
 				// FIXME: count overrun
 			}
 		}
 		else { // previous buffer hasn't been claimed, just rewrite
 			send_usart("U");
-			next_free_pos = 0;
+			next_free_pos = 1;
 		}
 	}
 
@@ -101,6 +102,12 @@ void adc_free_buff(void * buff) {
 	TIM_ITConfig(TIM3, TIM_IT_Update, ENABLE);
 }
 
+void init_buff(unsigned char * new_buff)
+{
+    new_buff[0] = POOL_BUFF_SIZE - 1;
+    next_free_pos = 1;
+}
+
 /*
  * Gets a new buffer from the pool and sets internal state. Returns TRUE on
  * success, otherwise FALSE
@@ -114,8 +121,8 @@ uint8_t get_new_buff(void) {
 		return 0;  // no buffers available
 	}
 
+	init_buff(new_buff);
 	curr_buff = new_buff;
-	next_free_pos = 0;
 
 	return 1;
 }

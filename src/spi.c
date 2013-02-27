@@ -83,9 +83,7 @@ uint8_t spi_send_string(const char* string, uint8_t length) {
 
     //Copy the data to the SPI buffer
     tx_offset = 0;
-    tx_length = length + 1;
-
-    tx_buffer[tx_offset++] = length;
+    tx_length = length;
 
     while (length > 0) {
         tx_buffer[tx_offset++] = *string;
