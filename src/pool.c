@@ -15,7 +15,7 @@ enum ALLOCED_STATUS {
 	BUFF_FREE, BUFF_NOT_FREE
 };
 
-unsigned char pool[POOL_NUM_BUFFERS][POOL_BUFF_SIZE];
+pool_item_t pool[POOL_NUM_BUFFERS][POOL_BUFF_SIZE];
 
 unsigned char alloced[POOL_NUM_BUFFERS];
 unsigned char alloced_num;
@@ -42,7 +42,7 @@ void pool_init(void) {
  * Retrieves a new buffer from the pool. Returns the address of the new buffer,
  * or NULL if a buffer failed to be allocated.
  */
-void * pool_malloc_buff(void) {
+pool_item_t * pool_malloc_buff(void) {
 	unsigned char i;
 
 	/* try and find an unallocated buffer */
@@ -57,7 +57,7 @@ void * pool_malloc_buff(void) {
 	return 0; // all buffers allocated
 }
 
-void pool_free_buff(void * handle) {
+void pool_free_buff(pool_item_t * handle) {
 	unsigned char i;
 
 	for (i = 0; i < POOL_NUM_BUFFERS; ++i) {

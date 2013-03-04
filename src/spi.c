@@ -5,11 +5,8 @@
 
 #define SPI_BUFFER_SIZE 255
 
-uint8_t tx_buffer[SPI_BUFFER_SIZE] = { 0, };
-uint8_t tx_offset = 0;
-uint8_t tx_length = 0;
 volatile uint8_t spi_tx_done = 1;
-uint8_t tx_fill = 0;
+pool_item_t tx_fill = 0;
 
 DMA_InitTypeDef dma_params;
 
@@ -75,7 +72,7 @@ void spi_zero_fill() {
     DMA_Cmd(DMA1_Channel5, ENABLE);
 }
 
-uint8_t spi_send_string(const char* string, uint8_t length) {
+uint8_t spi_send_string(const pool_item_t * string, uint8_t length) {
     if (!spi_tx_done) {
         //Error, previous transfer not complete
         return 0;

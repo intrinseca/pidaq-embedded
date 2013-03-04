@@ -7,8 +7,8 @@
 #include "adc.h"
 
 int main(void) {
-    char * current_buf = 0;
-    char * new_buf = 0;
+    pool_item_t * current_buf = 0;
+    pool_item_t * new_buf = 0;
 
     //Make the sample timer stop when paused for debugging
     DBGMCU_Config(DBGMCU_TIM2_STOP, ENABLE);

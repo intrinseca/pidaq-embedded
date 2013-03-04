@@ -5,13 +5,13 @@
 #include "adc.h"
 #include "spi.h"
 
-volatile unsigned char * filled_buffs[POOL_NUM_BUFFERS];
+volatile pool_item_t * filled_buffs[POOL_NUM_BUFFERS];
 unsigned char filled_buff_head;
 unsigned char filled_buff_tail;
 
 #define DMA_BUFF_LENGTH (POOL_BUFF_SIZE - 1)
 
-unsigned char dma_buff[2 * DMA_BUFF_LENGTH] = { 0x00, };
+pool_item_t dma_buff[2 * DMA_BUFF_LENGTH] = { 0x00, };
 
 void adc_init_timer() {
     TIM_TimeBaseInitTypeDef tim_params;
@@ -73,8 +73,8 @@ void adc_init_timer() {
 }
 
 void DMA1_Channel2_IRQHandler(void) {
-    unsigned char * new_buff;
-    unsigned char * dma_buff_start;
+    pool_item_t * new_buff;
+    pool_item_t * dma_buff_start;
     int i = 0;
 
     //Work out if this is half or fully-complete
@@ -137,7 +137,7 @@ void adc_init(void) {
     adc_init_timer();
 }
 
-void * adc_get_filled_buff(void) {
+pool_item_t * adc_get_filled_buff(void) {
     void * ret;
 
     //FIXME: Only disable the DMA interrupt
