@@ -30,6 +30,7 @@ void spi_init() {
 
     //Configure SPI
     SPI_StructInit(&spi_params);
+    spi_params.SPI_DataSize = SPI_DataSize_16b;
     SPI_Init(SPI2, &spi_params);
     SPI_I2S_DMACmd(SPI2, SPI_I2S_DMAReq_Tx, ENABLE);
 
@@ -44,6 +45,8 @@ void spi_init() {
     dma_params.DMA_PeripheralBaseAddr = (uint32_t) (&(SPI2 ->DR));
     dma_params.DMA_DIR = DMA_DIR_PeripheralDST;
     dma_params.DMA_Priority = DMA_Priority_VeryHigh;
+    dma_params.DMA_MemoryDataSize = DMA_MemoryDataSize_HalfWord;
+    dma_params.DMA_PeripheralDataSize = DMA_PeripheralDataSize_HalfWord;
 
     //Configure DMA Interrupts
     nvic_params.NVIC_IRQChannel = DMA1_Channel5_IRQn;

@@ -40,7 +40,7 @@ void adc_init_timer() {
     TIM_SelectOutputTrigger(TIM2, TIM_TRGOSource_Update );
 
     TIM_TimeBaseStructInit(&tim_params);
-    tim_params.TIM_Period = 255;
+    tim_params.TIM_Period = 1023;
     TIM_TimeBaseInit(TIM4, &tim_params);
 
     TIM_ITRxExternalClockConfig(TIM4, TIM_TS_ITR1 );
@@ -52,6 +52,8 @@ void adc_init_timer() {
     dma_params.DMA_DIR = DMA_DIR_PeripheralSRC;
     dma_params.DMA_Priority = DMA_Priority_High;
     dma_params.DMA_MemoryBaseAddr = (uint32_t) dma_buff;
+    dma_params.DMA_MemoryDataSize = DMA_MemoryDataSize_HalfWord;
+    dma_params.DMA_PeripheralDataSize = DMA_PeripheralDataSize_HalfWord;
     dma_params.DMA_BufferSize = 2 * DMA_BUFF_LENGTH;
     dma_params.DMA_MemoryInc = DMA_MemoryInc_Enable;
     dma_params.DMA_Mode = DMA_Mode_Circular;

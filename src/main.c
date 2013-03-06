@@ -48,11 +48,15 @@ int main(void) {
     //Start sampling
     adc_start();
 
+    char num[] = "0d\n";
+
     while (1) {
         if (spi_tx_done) {
             if (current_buf) {
                 adc_free_buff(current_buf);
-                send_usart("d\n");
+
+                num[0] = '0' + alloced_num;
+                send_usart(num);
                 current_buf = 0;
             }
 
