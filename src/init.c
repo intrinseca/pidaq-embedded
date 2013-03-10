@@ -12,6 +12,7 @@ void init_rcc() {
 void init_gpio() {
 	GPIO_InitTypeDef gpio_params;
 
+	GPIO_StructInit(&gpio_params);
 	gpio_params.GPIO_Speed = GPIO_Speed_50MHz;
 
 	//PB0, PB1 Outputs

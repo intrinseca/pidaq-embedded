@@ -43,7 +43,7 @@
 							<tool id="cdt.managedbuild.tool.gnu.cross.c.linker.1210608734" name="Cross GCC Linker" superClass="cdt.managedbuild.tool.gnu.cross.c.linker">
 								<option id="gnu.c.link.option.other.1549993756" name="Other options (-Xlinker [option])" superClass="gnu.c.link.option.other" valueType="stringList">
 									<listOptionValue builtIn="false" value="-Map=linker.map"/>
-									<listOptionValue builtIn="false" value="-T&quot;${ProjDirPath}\lib\stm32_flash.ld&quot;"/>
+									<listOptionValue builtIn="false" value="-T&quot;${ProjDirPath}/lib/stm32_flash.ld&quot;"/>
 								</option>
 								<option id="gnu.c.link.option.userobjs.104218454" name="Other objects" superClass="gnu.c.link.option.userobjs"/>
 								<option id="gnu.c.link.option.nostart.907002445" name="Do not use standard start files (-nostartfiles)" superClass="gnu.c.link.option.nostart" value="true" valueType="boolean"/>
