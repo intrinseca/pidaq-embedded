@@ -99,7 +99,7 @@ void DMA1_Channel2_IRQHandler(void) {
     if(new_buff != 0 && filled_buffs[filled_buff_head] == 0)
     {
         //Copy the data in
-        new_buff[0] = DMA_BUFF_LENGTH;
+        new_buff[0] = DMA_BUFF_LENGTH | 0x8000;
         while(i < DMA_BUFF_LENGTH)
         {
             new_buff[i + 1] = dma_buff_start[i];
