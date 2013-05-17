@@ -23,7 +23,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f10x_it.h"
-
+#include "stm32f10x_conf.h"
 /** @addtogroup STM32F10x_StdPeriph_Examples
   * @{
   */
@@ -153,12 +153,12 @@ void SysTick_Handler(void)
 
 	if(counter == HBT_PERIOD)
 	{
-		GPIOB->BSRR = 1;
+		GPIOB->BSRR = GPIO_Pin_0;
 		counter = 0;
 	}
 	else if(counter == HBT_ON_TIME)
 	{
-		GPIOB->BRR = 1;
+		GPIOB->BRR = GPIO_Pin_0;
 	}
 
 	counter++;

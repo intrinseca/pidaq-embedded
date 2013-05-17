@@ -98,8 +98,10 @@ void DMA1_Channel2_IRQHandler(void) {
     //Check for out-of-memory and overflow
     if(new_buff != 0 && filled_buffs[filled_buff_head] == 0)
     {
-        //Copy the data in
+        //First value is length with high bit set to indicate header
         new_buff[0] = DMA_BUFF_LENGTH | 0x8000;
+
+        //Copy the data in
         while(i < DMA_BUFF_LENGTH)
         {
             new_buff[i + 1] = dma_buff_start[i];

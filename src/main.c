@@ -51,6 +51,8 @@ int main(void) {
     char num[] = "0d\n";
 
     while (1) {
+        GPIO_WriteBit(GPIOB, GPIO_Pin_1, (alloced_num > 4));
+
         if (spi_tx_done) {
             if (current_buf) {
                 adc_free_buff(current_buf);
