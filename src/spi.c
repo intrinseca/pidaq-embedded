@@ -2,6 +2,7 @@
 #include "stm32f10x.h"
 #include "spi.h"
 #include "pool.h"
+#include "gpio.h"
 
 #define SPI_BUFFER_SIZE 255
 
@@ -39,6 +40,7 @@ void spi_init() {
     nvic_params.NVIC_IRQChannelPreemptionPriority = 0;
     nvic_params.NVIC_IRQChannelSubPriority = 2;
     NVIC_Init(&nvic_params);
+    SPI_I2S_ITConfig(SPI2, SPI_I2S_IT_RXNE, ENABLE);
 
     //Base Configuration for DMA
     DMA_StructInit(&dma_params);
@@ -75,10 +77,21 @@ void spi_zero_fill() {
     DMA_Cmd(DMA1_Channel5, ENABLE);
 }
 
-uint8_t spi_send_string(const pool_item_t * string, uint8_t length) {
+uint8_t spi_send_string(pool_item_t * string, uint8_t length) {
+    char data;
+
     if (!spi_tx_done) {
         //Error, previous transfer not complete
         return 0;
+    }
+
+    //Load the Digital I/O Input into the top part of the buffer, assuming it's
+    //long enough
+    if(length >= 3) {
+        data = gpio_get_data();
+        string[1] |= (data & 0xE0) << 7;
+        string[2] |= (data & 0x1C) << 10;
+        string[3] |= (data & 0x03) << 13;
     }
 
     //Configure the DMA channel
@@ -112,4 +125,31 @@ void DMA1_Channel5_IRQHandler(void) {
 
     //Clear Interrupt
     DMA_ClearITPendingBit(DMA1_IT_TC5);
+}
+
+//Handle commands recieved from master
+void SPI2_IRQHandler(void) {
+    pool_item_t received = SPI_I2S_ReceiveData(SPI2);
+
+    if ((received & 0x8000) > 0) {
+        switch ((received & 0x6000) >> 13) {
+        case 0:
+            //Input/Output Mask
+            gpio_set_io_mask(received & 0x00FF);
+            break;
+        case 1:
+            //Configuration
+            gpio_set_conf(received & 0x00FF);
+            break;
+        case 2:
+            //Data
+            gpio_set_data(received & 0x00FF);
+            break;
+        default:
+            //NOOP
+            break;
+        }
+    }
+
+    SPI_I2S_ClearITPendingBit(SPI2, SPI_I2S_IT_RXNE);
 }

@@ -15,7 +15,7 @@ void send_usart(char* string);
 extern volatile uint8_t spi_tx_done;
 
 void spi_init();
-uint8_t spi_send_string(const pool_item_t * string, uint8_t length);
+uint8_t spi_send_string(pool_item_t * string, uint8_t length);
 uint8_t spi_busy(void);
 void SPI2_IRQHandler(void);
 void DMA1_Channel5_IRQHandler(void);

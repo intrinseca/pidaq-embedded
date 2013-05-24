@@ -5,6 +5,7 @@
 #include "spi.h"
 #include "pool.h"
 #include "adc.h"
+#include "gpio.h"
 
 int main(void) {
     pool_item_t * current_buf = 0;
@@ -24,6 +25,7 @@ int main(void) {
     //Initialise Core/Common Peripherals
     init_rcc();
     init_gpio();
+    gpio_init();
 
     //Setup SysTick interrupt at 1ms intervals
     SysTick_CLKSourceConfig(SysTick_CLKSource_HCLK);
