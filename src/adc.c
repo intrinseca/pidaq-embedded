@@ -4,6 +4,7 @@
 #include "pool.h"
 #include "adc.h"
 #include "spi.h"
+#include "usart.h"
 
 volatile pool_item_t * filled_buffs[POOL_NUM_BUFFERS];
 unsigned char filled_buff_head;
@@ -15,14 +16,17 @@ pool_item_t dma_buff[2 * DMA_BUFF_LENGTH] = { 0x00, };
 
 void adc_init_timer() {
     TIM_TimeBaseInitTypeDef tim_params;
+    TIM_OCInitTypeDef tim_oc_params;
     NVIC_InitTypeDef nvic_params;
     DMA_InitTypeDef dma_params;
+    ADC_InitTypeDef adc_params;
 
-    //Set up TIM3 for 'sampling'
+    //Set up clocks
+    RCC_ADCCLKConfig(RCC_PCLK2_Div4);
     RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2, ENABLE);
-    RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3, ENABLE);
-    RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM4, ENABLE);
+    RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1, ENABLE);
 
+    //Set up TIM2 to trigger ADC
     //APB1 runs at half the system clock, but the feed to TIM2/4 is doubled
     //Prescaler sets period to 10us
     //Period is then 50us / 20 kHz
@@ -31,24 +35,18 @@ void adc_init_timer() {
     tim_params.TIM_Period = 5;
     TIM_TimeBaseInit(TIM2, &tim_params);
 
-    //TIM2 elapsed triggers a DMA request
-    //TODO: Trigger ADC
-    TIM_SelectCCDMA(TIM2, ENABLE);
-    TIM_DMACmd(TIM2, TIM_DMA_Update, ENABLE);
-
-    //Temporary measure: Make TIM2 update TIM4 to use TIM4 as 'sample'
-    TIM_SelectOutputTrigger(TIM2, TIM_TRGOSource_Update );
-
-    TIM_TimeBaseStructInit(&tim_params);
-    tim_params.TIM_Period = 1023;
-    TIM_TimeBaseInit(TIM4, &tim_params);
-
-    TIM_ITRxExternalClockConfig(TIM4, TIM_TS_ITR1 );
+    //Set up the capture/compare to provide the ADC trigger
+    TIM_OC2Init(TIM2, &tim_oc_params);
+    tim_oc_params.TIM_OCMode = TIM_OCMode_PWM1;
+    tim_oc_params.TIM_OutputState = TIM_OutputState_Enable;
+    tim_oc_params.TIM_Pulse = 2;
+    tim_oc_params.TIM_OCPolarity = TIM_OCPolarity_Low;
+    TIM_OC2Init(TIM2, &tim_oc_params);
 
     //Configure the DMA
-    DMA_Cmd(DMA1_Channel2, DISABLE);
+    DMA_Cmd(DMA1_Channel1, DISABLE);
     DMA_StructInit(&dma_params);
-    dma_params.DMA_PeripheralBaseAddr = (uint32_t) (&(TIM4 ->CNT));
+    dma_params.DMA_PeripheralBaseAddr = (uint32_t) (&(ADC1->DR));
     dma_params.DMA_DIR = DMA_DIR_PeripheralSRC;
     dma_params.DMA_Priority = DMA_Priority_High;
     dma_params.DMA_MemoryBaseAddr = (uint32_t) dma_buff;
@@ -57,38 +55,60 @@ void adc_init_timer() {
     dma_params.DMA_BufferSize = 2 * DMA_BUFF_LENGTH;
     dma_params.DMA_MemoryInc = DMA_MemoryInc_Enable;
     dma_params.DMA_Mode = DMA_Mode_Circular;
-    DMA_Init(DMA1_Channel2, &dma_params);
+    DMA_Init(DMA1_Channel1, &dma_params);
 
     //Enable DMA complete interrupt
-    nvic_params.NVIC_IRQChannel = DMA1_Channel2_IRQn;
+    nvic_params.NVIC_IRQChannel = DMA1_Channel1_IRQn;
     nvic_params.NVIC_IRQChannelPreemptionPriority = 3;
     nvic_params.NVIC_IRQChannelSubPriority = 0;
     nvic_params.NVIC_IRQChannelCmd = ENABLE;
     NVIC_Init(&nvic_params);
 
-    DMA_ClearITPendingBit(DMA1_IT_TC2 );
-    DMA_ITConfig(DMA1_Channel2, DMA_IT_TC, ENABLE);
-    DMA_ITConfig(DMA1_Channel2, DMA_IT_HT, ENABLE);
+    DMA_ClearITPendingBit(DMA1_IT_TC1 );
+    DMA_ITConfig(DMA1_Channel1, DMA_IT_TC, ENABLE);
+    DMA_ITConfig(DMA1_Channel1, DMA_IT_HT, ENABLE);
 
     //Enable the DMA controller
-    DMA_Cmd(DMA1_Channel2, ENABLE);
+    DMA_Cmd(DMA1_Channel1, ENABLE);
+
+    //ADC1 configuration
+    adc_params.ADC_Mode = ADC_Mode_Independent;
+    adc_params.ADC_ScanConvMode = DISABLE;
+    adc_params.ADC_ContinuousConvMode = DISABLE;
+    adc_params.ADC_ExternalTrigConv = ADC_ExternalTrigConv_T2_CC2;
+    adc_params.ADC_DataAlign = ADC_DataAlign_Right;
+    adc_params.ADC_NbrOfChannel = 1;
+    ADC_Init(ADC1, &adc_params);
+
+    //ADC1 channel configuration
+    ADC_RegularChannelConfig(ADC1, ADC_Channel_0, 1, ADC_SampleTime_55Cycles5);
+
+    //Enable ADC1 DMA
+    ADC_DMACmd(ADC1, ENABLE);
+
+    //Enable ADC1 external trigger
+    TIM_CtrlPWMOutputs(TIM2, ENABLE);
+    ADC_ExternalTrigConvCmd(ADC1, ENABLE);
+
+    //Enable ADC1
+    ADC_Cmd(ADC1, ENABLE);
 }
 
-void DMA1_Channel2_IRQHandler(void) {
+void DMA1_Channel1_IRQHandler(void) {
     pool_item_t * new_buff;
     pool_item_t * dma_buff_start;
     int i = 0;
 
     //Work out if this is half or fully-complete
     //Clear appropriate flag and get buffer start location
-    if (DMA_GetITStatus(DMA1_IT_HT2 ) == SET) {
+    if (DMA_GetITStatus(DMA1_IT_HT1 ) == SET) {
         dma_buff_start = dma_buff;
-        DMA_ClearITPendingBit(DMA1_IT_HT2 );
+        DMA_ClearITPendingBit(DMA1_IT_HT1 );
         usart_send("<");
     }
     else {
         dma_buff_start = &dma_buff[DMA_BUFF_LENGTH];
-        DMA_ClearITPendingBit(DMA1_IT_TC2 );
+        DMA_ClearITPendingBit(DMA1_IT_TC1 );
         usart_send(">");
     }
 
@@ -124,7 +144,6 @@ void DMA1_Channel2_IRQHandler(void) {
 
 void adc_start() {
     TIM_Cmd(TIM2, ENABLE);
-    TIM_Cmd(TIM4, ENABLE);
 }
 
 void adc_init(void) {

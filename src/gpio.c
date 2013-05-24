@@ -43,6 +43,11 @@ void gpio_init(){
     gpio_params.GPIO_Mode = GPIO_Mode_AF_PP;
     GPIO_Init(GPIOB, &gpio_params);
 
+    //PA0-3 AIN
+    gpio_params.GPIO_Pin = GPIO_Pin_0 | GPIO_Pin_1 | GPIO_Pin_3 | GPIO_Pin_4;
+    gpio_params.GPIO_Mode = GPIO_Mode_AIN;
+    GPIO_Init(GPIOA, &gpio_params);
+
     //Set up digital I/O pins
     curr_io_mask = 0;
     curr_configuration = 0;
