@@ -32,14 +32,14 @@ void adc_init_timer() {
     //Period is then 50us / 20 kHz
     TIM_TimeBaseStructInit(&tim_params);
     tim_params.TIM_Prescaler = SystemCoreClock / 100000;
-    tim_params.TIM_Period = 5;
+    tim_params.TIM_Period = 200;
     TIM_TimeBaseInit(TIM2, &tim_params);
 
     //Set up the capture/compare to provide the ADC trigger
     TIM_OC2Init(TIM2, &tim_oc_params);
     tim_oc_params.TIM_OCMode = TIM_OCMode_PWM1;
     tim_oc_params.TIM_OutputState = TIM_OutputState_Enable;
-    tim_oc_params.TIM_Pulse = 2;
+    tim_oc_params.TIM_Pulse = 100;
     tim_oc_params.TIM_OCPolarity = TIM_OCPolarity_Low;
     TIM_OC2Init(TIM2, &tim_oc_params);
 
@@ -73,15 +73,18 @@ void adc_init_timer() {
 
     //ADC1 configuration
     adc_params.ADC_Mode = ADC_Mode_Independent;
-    adc_params.ADC_ScanConvMode = DISABLE;
+    adc_params.ADC_ScanConvMode = ENABLE;
     adc_params.ADC_ContinuousConvMode = DISABLE;
     adc_params.ADC_ExternalTrigConv = ADC_ExternalTrigConv_T2_CC2;
     adc_params.ADC_DataAlign = ADC_DataAlign_Right;
-    adc_params.ADC_NbrOfChannel = 1;
+    adc_params.ADC_NbrOfChannel = 4;
     ADC_Init(ADC1, &adc_params);
 
     //ADC1 channel configuration
     ADC_RegularChannelConfig(ADC1, ADC_Channel_0, 1, ADC_SampleTime_55Cycles5);
+    ADC_RegularChannelConfig(ADC1, ADC_Channel_1, 2, ADC_SampleTime_55Cycles5);
+    ADC_RegularChannelConfig(ADC1, ADC_Channel_2, 3, ADC_SampleTime_55Cycles5);
+    ADC_RegularChannelConfig(ADC1, ADC_Channel_3, 4, ADC_SampleTime_55Cycles5);
 
     //Enable ADC1 DMA
     ADC_DMACmd(ADC1, ENABLE);
