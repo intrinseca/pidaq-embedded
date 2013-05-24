@@ -1,7 +1,7 @@
 #include "stm32f10x_conf.h"
 #include "stm32f10x.h"
 
-#include "init.h"
+#include "usart.h"
 #include "spi.h"
 #include "pool.h"
 #include "adc.h"
@@ -22,9 +22,10 @@ int main(void) {
     RCC_GetClocksFreq(&RCC_ClocksStatus);
     SystemCoreClock = RCC_ClocksStatus.SYSCLK_Frequency;
 
-    //Initialise Core/Common Peripherals
-    init_rcc();
-    init_gpio();
+    //Turn on DMA1 (used by several modules)
+    RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1, ENABLE);
+
+    //Initialise GPIO
     gpio_init();
 
     //Setup SysTick interrupt at 1ms intervals
@@ -38,14 +39,13 @@ int main(void) {
     pool_init();
 
     //Enable Communications
-    init_usart();
-    USART_Cmd(USART1, ENABLE);
+    usart_init();
     spi_init();
 
     //Initialise sampling
     adc_init();
 
-    send_usart("\n\nPiDAQ r1\n");
+    usart_send("\n\nPiDAQ r1\n");
 
     //Start sampling
     adc_start();
@@ -60,21 +60,21 @@ int main(void) {
                 adc_free_buff(current_buf);
 
                 num[0] = '0' + alloced_num;
-                send_usart(num);
+                usart_send(num);
                 current_buf = 0;
             }
 
             new_buf = adc_get_filled_buff();
 
             if (new_buf) {
-                send_usart("c");
+                usart_send("c");
                 current_buf = new_buf;
 
                 if (spi_send_string(current_buf, POOL_BUFF_SIZE)) {
-                    send_usart("f");
+                    usart_send("f");
                 }
                 else {
-                    send_usart("!");
+                    usart_send("!");
                 }
             }
         }

@@ -13,15 +13,6 @@ DMA_InitTypeDef dma_params;
 
 void spi_zero_fill();
 
-void send_usart(char* string) {
-    do {
-        USART_SendData(USART1, *string);
-        string++;
-        while (USART_GetFlagStatus(USART1, USART_FLAG_TXE) == RESET)
-            ;
-    } while (*string);
-}
-
 void spi_init() {
     SPI_InitTypeDef spi_params;
     NVIC_InitTypeDef nvic_params;

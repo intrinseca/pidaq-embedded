@@ -10,8 +10,6 @@
 
 #include "pool.h"
 
-void send_usart(char* string);
-
 extern volatile uint8_t spi_tx_done;
 
 void spi_init();

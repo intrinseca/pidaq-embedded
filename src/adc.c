@@ -84,12 +84,12 @@ void DMA1_Channel2_IRQHandler(void) {
     if (DMA_GetITStatus(DMA1_IT_HT2 ) == SET) {
         dma_buff_start = dma_buff;
         DMA_ClearITPendingBit(DMA1_IT_HT2 );
-        send_usart("<");
+        usart_send("<");
     }
     else {
         dma_buff_start = &dma_buff[DMA_BUFF_LENGTH];
         DMA_ClearITPendingBit(DMA1_IT_TC2 );
-        send_usart(">");
+        usart_send(">");
     }
 
     //Get a new buffer
@@ -114,11 +114,11 @@ void DMA1_Channel2_IRQHandler(void) {
         if (filled_buff_head >= POOL_NUM_BUFFERS)
             filled_buff_head = 0;
 
-        send_usart("X");
+        usart_send("X");
     }
     else {
         //Overflow or out of memory, in either case, nowhere to put the data
-        send_usart("0");
+        usart_send("0");
     }
 }
 
