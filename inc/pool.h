@@ -8,7 +8,8 @@
 #ifndef POOL_H_
 #define POOL_H_
 
-#define POOL_BUFF_SIZE  200
+//POOL_BUFF_SIZE must be a multiple of four + 1 so that the interleaving works!
+#define POOL_BUFF_SIZE  201
 #define POOL_NUM_BUFFERS 8
 
 typedef uint16_t pool_item_t;
