@@ -29,17 +29,17 @@ void adc_init_timer() {
     //Set up TIM2 to trigger ADC
     //APB1 runs at half the system clock, but the feed to TIM2/4 is doubled
     //Prescaler sets period to 10us
-    //Period is then 50us / 20 kHz
+    //Period is then 200us / 5 kHz = 20
     TIM_TimeBaseStructInit(&tim_params);
     tim_params.TIM_Prescaler = SystemCoreClock / 100000;
-    tim_params.TIM_Period = 200;
+    tim_params.TIM_Period = 20;
     TIM_TimeBaseInit(TIM2, &tim_params);
 
     //Set up the capture/compare to provide the ADC trigger
     TIM_OC2Init(TIM2, &tim_oc_params);
     tim_oc_params.TIM_OCMode = TIM_OCMode_PWM1;
     tim_oc_params.TIM_OutputState = TIM_OutputState_Enable;
-    tim_oc_params.TIM_Pulse = 100;
+    tim_oc_params.TIM_Pulse = 10;
     tim_oc_params.TIM_OCPolarity = TIM_OCPolarity_Low;
     TIM_OC2Init(TIM2, &tim_oc_params);
 
